@@ -1,0 +1,2 @@
+# .Launch the application in chrome
+flutter run -d chrome
