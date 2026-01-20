@@ -1,29 +1,27 @@
 import 'package:flutter/material.dart';
 
+/// Entry point of the application.
+/// Launches the root widget.
 void main() {
   runApp(const MyApp());
 }
 
+/// Root widget of the application.
+/// Sets up the MaterialApp and defines the home screen.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF121212),
-        primaryColor: Colors.deepPurple,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.deepPurple,
-          elevation: 4,
-        ),
-      ),
-      home: const CalculatorPage(),
+      home: CalculatorPage(),
     );
   }
 }
 
+/// Main calculator screen.
+/// Uses a StatefulWidget because the buttons change state when clicked.
 class CalculatorPage extends StatefulWidget {
   const CalculatorPage({super.key});
 
@@ -31,121 +29,131 @@ class CalculatorPage extends StatefulWidget {
   State<CalculatorPage> createState() => _CalculatorPageState();
 }
 
+/// State class that holds the calculator data
+/// and builds the user interface.
 class _CalculatorPageState extends State<CalculatorPage> {
+  /// Current expression displayed on screen
   String expression = "0";
+
+  /// Current result displayed on screen
   String result = "0";
-
-  final List<List<String>> buttonRows = [
-    ['AC', 'C', '/', '*'],
-    ['7', '8', '9', '-'],
-    ['4', '5', '6', '+'],
-    ['1', '2', '3', '='],
-    ['0', '.', '', ''], // 0 prend 2 colonnes
-  ];
-
-  // Définition des couleurs
-  Color getButtonColor(String text) {
-    if (['AC', 'C', '=', '+', '-', '*', '/'].contains(text)) {
-      return Colors.yellow[700]!; // jaune pour opérateurs et AC/C
-    }
-    return Colors.grey[850]!; // chiffres
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Calculator')),
+      backgroundColor: Colors.black,
+
+      /// Top application bar with a simple title
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Turbo Mega Calculator 3000',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+
+      /// Main layout divided vertically between
+      /// display area and buttons area
       body: Column(
         children: [
-          // Expression
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: TextField(
-              readOnly: true,
-              textAlign: TextAlign.right,
-              decoration: InputDecoration(
-                hintText: expression,
-                filled: true,
-                fillColor: const Color(0xFF1E1E1E),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              controller: TextEditingController(text: expression),
-              style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
-            ),
-          ),
-          // Result
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: TextField(
-              readOnly: true,
-              textAlign: TextAlign.right,
-              decoration: InputDecoration(
-                hintText: result,
-                filled: true,
-                fillColor: const Color(0xFF1E1E1E),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              controller: TextEditingController(text: result),
-              style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Boutons
+          /// Expression display
+          buildDisplay(expression, fontSize: 32),
+
+          /// Result display
+          buildDisplay(result, fontSize: 40),
+
+          /// Buttons area taking all remaining space
           Expanded(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: buttonRows.map((row) {
-                return Expanded(
-                  child: Row(
-                    children: row.map((text) {
-                      if (text.isEmpty) return const Spacer();
-
-                      // Correction alignement dernière ligne : 0 prend 2 colonnes
-                      double flex = text == '0' ? 2 : 1;
-
-                      return Expanded(
-                        flex: flex.toInt(),
-                        child: Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: ElevatedButton(
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(getButtonColor(text)),
-                              foregroundColor: MaterialStateProperty.all(Colors.black),
-                              elevation: MaterialStateProperty.all(6),
-                              shadowColor: MaterialStateProperty.all(Colors.black54),
-                              shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              ),
-                              textStyle: MaterialStateProperty.all(
-                                const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
-                              overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                                (states) => states.contains(MaterialState.pressed)
-                                    ? Colors.yellow.withOpacity(0.5)
-                                    : null,
-                              ),
-                            ),
-                            onPressed: () {
-                              debugPrint('Button pressed: $text');
-                            },
-                            child: Center(child: Text(text)),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                );
-              }).toList(),
+              children: [
+                buildButtonRow(['AC', 'C', '%', '/']),
+                buildButtonRow(['7', '8', '9', '*']),
+                buildButtonRow(['4', '5', '6', '-']),
+                buildButtonRow(['1', '2', '3', '+']),
+                buildButtonRow(['0', '.', '='], isLastRow: true),
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  /// Builds a text display used for expression and result.
+  /// Text is right-aligned to mimic a real calculator screen.
+  Widget buildDisplay(String text, {required double fontSize}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      alignment: Alignment.centerRight,
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: fontSize,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  /// Builds a single row of calculator buttons.
+  /// The last row is handled differently to make the "0" button wider.
+  Widget buildButtonRow(List<String> buttons, {bool isLastRow = false}) {
+    return Expanded(
+      child: Row(
+        children: buttons.map((text) {
+          if (isLastRow && text == '0') {
+            return Expanded(
+              flex: 2,
+              child: calculatorButton(text),
+            );
+          }
+          return Expanded(
+            child: calculatorButton(text),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  /// Builds a calculator button with a flat, rounded design.
+  /// Each button prints its label to the debug console when pressed.
+  Widget calculatorButton(String text) {
+    return Padding(
+      padding: const EdgeInsets.all(6),
+      child: ElevatedButton(
+        onPressed: () {
+          debugPrint('Button pressed: $text');
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: getButtonColor(text),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(100),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        child: Center(child: Text(text)),
+      ),
+    );
+  }
+
+  /// Returns the appropriate color depending on the button type:
+  /// operators, function buttons, or number buttons.
+  Color getButtonColor(String text) {
+    if (['/', '*', '-', '+', '='].contains(text)) {
+      return const Color(0xFFF29A02);
+    }
+    if (['C', 'AC', '%'].contains(text)) {
+      return const Color(0xFF808080);
+    }
+    return const Color(0xFF3B3A3A);
   }
 }
