@@ -4,51 +4,51 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
-    );
-  }
+  State<MyApp> createState() => _MyAppState();
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
+class _MyAppState extends State<MyApp> {
   bool _isHelloWorld = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              _isHelloWorld ? 'Hello World!' : 'Hello Everybody',
-              style: const TextStyle(fontSize: 24),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _isHelloWorld = !_isHelloWorld;
-                });
-              },
-              child: const Text('Press me'),
-            ),
-          ],
-        ),
+     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        brightness: Brightness.dark
       ),
+      home: Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _isHelloWorld ? 'Hello World!' : 'Hello Everybody',
+                style: TextStyle(fontSize: 24),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isHelloWorld = !_isHelloWorld;
+                  });
+                },
+                child: Text(
+                  'Press me',
+                  style: TextStyle(color: Colors.black)
+                ),
+              ),
+            ],
+          ),
+        ),
+      )
     );
   }
 }
