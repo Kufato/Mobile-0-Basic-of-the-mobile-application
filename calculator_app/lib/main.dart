@@ -1,28 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
 
-/// Entry point of the application.
-/// Launches the root widget.
 void main() {
   runApp(const MyApp());
 }
 
-/// Root widget of the application.
-/// Sets up the MaterialApp and defines the home screen.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        brightness: Brightness.dark
+      ),
       home: CalculatorPage(),
     );
   }
 }
 
-/// Main calculator screen.
-/// Uses a StatefulWidget because the buttons change state when clicked.
 class CalculatorPage extends StatefulWidget {
   const CalculatorPage({super.key});
 
@@ -30,21 +27,15 @@ class CalculatorPage extends StatefulWidget {
   State<CalculatorPage> createState() => _CalculatorPageState();
 }
 
-/// State class that holds the calculator data
-/// and builds the user interface.
+/* State class that holds the calculator data and builds the user interface */
 class _CalculatorPageState extends State<CalculatorPage> {
-  /// Current expression displayed on screen
   String expression = "0";
-
-  /// Current result displayed on screen
   String result = "0";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-
-      /// Top application bar with a simple title
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
@@ -54,18 +45,10 @@ class _CalculatorPageState extends State<CalculatorPage> {
           style: TextStyle(color: Colors.white),
         ),
       ),
-
-      /// Main layout divided vertically between
-      /// display area and buttons area
       body: Column(
         children: [
-          /// Expression display
           buildDisplay(expression, fontSize: 32),
-
-          /// Result display
           buildDisplay(result, fontSize: 40),
-
-          /// Buttons area taking all remaining space
           Expanded(
             child: Column(
               children: [
@@ -82,8 +65,6 @@ class _CalculatorPageState extends State<CalculatorPage> {
     );
   }
 
-  /// Builds a text display used for expression and result.
-  /// Text is right-aligned to mimic a real calculator screen.
   Widget buildDisplay(String text, {required double fontSize}) {
     return Container(
       width: double.infinity,
@@ -94,14 +75,11 @@ class _CalculatorPageState extends State<CalculatorPage> {
         style: TextStyle(
           color: Colors.white,
           fontSize: fontSize,
-          fontWeight: FontWeight.w500,
         ),
       ),
     );
   }
 
-  /// Builds a single row of calculator buttons.
-  /// The last row is handled differently to make the "0" button wider.
   Widget buildButtonRow(List<String> buttons, {bool isLastRow = false}) {
     return Expanded(
       child: Row(
@@ -120,11 +98,9 @@ class _CalculatorPageState extends State<CalculatorPage> {
     );
   }
 
-  /// Builds a calculator button with a flat, rounded design.
-  /// Each button prints its label to the debug console when pressed.
   Widget calculatorButton(String text) {
     return Padding(
-      padding: const EdgeInsets.all(6),
+      padding: EdgeInsets.all(6),
       child: ElevatedButton(
         onPressed: () {
           onButtonPressed(text);
@@ -136,9 +112,8 @@ class _CalculatorPageState extends State<CalculatorPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(100),
           ),
-          textStyle: const TextStyle(
+          textStyle: TextStyle(
             fontSize: 22,
-            fontWeight: FontWeight.w500,
           ),
         ),
         child: Center(child: Text(text)),
@@ -146,8 +121,6 @@ class _CalculatorPageState extends State<CalculatorPage> {
     );
   }
 
-  /// Returns the appropriate color depending on the button type:
-  /// operators, function buttons, or number buttons.
   Color getButtonColor(String text) {
     if (['/', '*', '-', '+', '='].contains(text)) {
       return const Color(0xFFF29A02);
@@ -158,8 +131,6 @@ class _CalculatorPageState extends State<CalculatorPage> {
     return const Color(0xFF3B3A3A);
   }
 
-  /// Just to check the button AC and C and also the expression value 
-  /// to ensure the '0' from the initialisation is no longer here
   void onButtonPressed(String value) {
     setState(() {
       if (value == 'AC') {
@@ -167,52 +138,47 @@ class _CalculatorPageState extends State<CalculatorPage> {
         result = '0';
         return;
       }
-
       if (value == 'C') {
         if (expression.length > 1) {
           expression = expression.substring(0, expression.length - 1);
-        } else {
+        }
+        else {
           expression = '0';
         }
         return;
       }
-
       if (value == '=') {
         calculateResult();
         return;
       }
-
       if (expression == '0') {
         expression = value;
-      } else {
+      }
+      else {
         expression += value;
       }
     });
   }
 
-  /// Evaluates the current mathematical expression safely.
-  /// Updates the `result` variable with the calculation or 'Error' if the expression is invalid.
   void calculateResult() {
     try {
-      final parser = Parser();
+      // Create a object cabaple to convert a mathematical chain into a mathematical tree.
+      final parser = GrammarParser();
+
+      // Convert into the mathematical tree
       final exp = parser.parse(expression);
+
+      // If you use some varible (ex: a + b * 2)
       ContextModel cm = ContextModel();
 
+      // Traverse the mathematical tree and return the result.
       double eval = exp.evaluate(EvaluationType.REAL, cm);
 
+      // Convert the result into a string for the display
       result = eval.toString();
-    } catch (e) {
+    } 
+    catch (e) {
       result = 'Error';
-    }
-  }
-
-  /// Appends a value (number or operator) to the current expression.
-  /// Replaces the initial '0' if present, otherwise concatenates the new value.
-  void appendValue(String value) {
-    if (expression == '0') {
-      expression = value;
-    } else {
-      expression += value;
     }
   }
 }
