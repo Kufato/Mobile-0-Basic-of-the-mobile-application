@@ -32,6 +32,10 @@ class _CalculatorPageState extends State<CalculatorPage> {
   String expression = "0";
   String result = "0";
 
+  bool isOperator(String s) {
+    return ['+', '-', '*', '/'].contains(s);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,6 +135,38 @@ class _CalculatorPageState extends State<CalculatorPage> {
     return const Color(0xFF3B3A3A);
   }
 
+  void appendValue(String value) {
+
+    String last = expression[expression.length - 1];
+
+    // Prevent operator at the beginning except “-”
+    if (expression == '0' && isOperator(value) && value != '-') {
+      expression = '0$value';
+      return;
+    }
+
+    // Prevent double operator
+    if (isOperator(last) && isOperator(value)) {
+      expression =
+          expression.substring(0, expression.length - 1) + value;
+      return;
+    }
+
+    // Handle leading zero with digit
+    if (expression == '0' && !isOperator(value) && value != '.') {
+      expression = value;
+      return;
+    }
+
+    // Manage 0
+    if (expression == '0' && value == '.') {
+      expression = '0.';
+      return;
+    }
+
+    expression += value;
+  }
+
   void onButtonPressed(String value) {
     setState(() {
       if (value == 'AC') {
@@ -151,12 +187,7 @@ class _CalculatorPageState extends State<CalculatorPage> {
         calculateResult();
         return;
       }
-      if (expression == '0') {
-        expression = value;
-      }
-      else {
-        expression += value;
-      }
+      appendValue(value);
     });
   }
 
